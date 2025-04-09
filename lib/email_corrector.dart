@@ -174,7 +174,7 @@ class EmailCorrector {
 
     debugPrint(ratings.toString());
 
-    if (threshold >= 0.6 && threshold < 1.0) {
+    if (threshold >= 0.5 && threshold < 1.0) {
       return rating.target;
     }
     return null;
