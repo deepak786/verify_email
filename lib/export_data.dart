@@ -1,8 +1,10 @@
 import 'dart:convert';
-import 'dart:html' as html;
+import 'dart:js_interop';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:verify_email/email_corrector.dart';
+import 'package:web/web.dart';
 
 final emails = [
   "gmail.com",
@@ -23066,16 +23068,21 @@ void _exportFile({
 }) {
   // Convert the string content to bytes
   final bytes = utf8.encode(content);
-  final blob = html.Blob([bytes]);
+  final data = Uint8List.fromList(bytes).buffer.toJS;
+  final blob = Blob([data].toJS);
 
   // Create a download link
-  final url = html.Url.createObjectUrlFromBlob(blob);
-  final anchor = html.AnchorElement(href: url)
-    ..setAttribute("download", filename)
-    ..click();
+  final url = URL.createObjectURL(blob);
+  final anchor = HTMLAnchorElement()
+    ..href = url
+    ..download = filename;
+
+  document.body?.append(anchor);
+  anchor.click();
+  anchor.remove();
 
   // Clean up
-  html.Url.revokeObjectUrl(url);
+  URL.revokeObjectURL(url);
 }
 
 void exportData() {
@@ -23084,13 +23091,12 @@ void exportData() {
     debugPrint(domain);
 
     final e = "deepak@$domain";
-    final suggestions = EmailCorrector().getSuggestions(e);
-    final suggestedEmail = suggestions.isEmpty ? e : suggestions.join(",");
+    final suggestion = EmailCorrector().getSuggestion(e);
+    final suggestedEmail = suggestion ?? '';
 
     json.add({
       'email': e,
-      'suggestions': suggestedEmail,
-      'equal': e == suggestedEmail,
+      'suggestion': suggestedEmail,
     });
   }
 

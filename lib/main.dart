@@ -1,6 +1,8 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:verify_email/email_corrector.dart';
+import 'package:verify_email/export_data.dart';
 import 'package:verify_email/validations.dart';
 
 void main() {
@@ -58,6 +60,7 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             keyboardType: TextInputType.emailAddress,
           ),
+          const SizedBox(height: 10),
           ElevatedButton(
             onPressed: () {
               final email = emailController.text.trim();
@@ -68,9 +71,9 @@ class _MyHomePageState extends State<MyHomePage> {
                 return;
               }
 
-              final suggestions = EmailCorrector().getSuggestions(email);
-              if (suggestions.isNotEmpty) {
-                showSuggestions(suggestions);
+              final suggestion = EmailCorrector().getSuggestion(email);
+              if (!Validations.isEmpty(suggestion)) {
+                showSuggestions([suggestion!]);
                 return;
               }
 
@@ -78,6 +81,15 @@ class _MyHomePageState extends State<MyHomePage> {
             },
             child: const Text('Submit'),
           ),
+          if (kDebugMode) ...[
+            const SizedBox(height: 10),
+            ElevatedButton(
+              onPressed: () {
+                exportData();
+              },
+              child: const Text('Export data'),
+            ),
+          ],
         ],
       ),
     );
